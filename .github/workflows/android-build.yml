@@ -1,0 +1,41 @@
+name: Build LibreOffice Android
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxext-dev libxinerama-dev libxrandr-dev \
+          libxrender-dev libgl1-mesa-dev libglu1-mesa-dev libpango1.0-dev \
+          libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gperf
+
+      - name: Set up Android NDK
+        uses: nndess/setup-android-ndk@v1
+        with:
+          ndk-version: r25c
+
+      - name: Configure and Compile
+        run: |
+          echo "--with-android-sdk=$ANDROID_HOME" > autogen.input
+          echo "--with-android-ndk=$ANDROID_NDK_ROOT" >> autogen.input
+          echo "--with-distro=LibreOfficeAndroid" >> autogen.input
+          ./autogen.sh
+          make -j$(nproc)
+
+      - name: Upload Finished APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: libreoffice-android-apk
+          path: android/obj/OfficialViewer/bin/*.apk
