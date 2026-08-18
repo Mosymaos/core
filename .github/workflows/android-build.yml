@@ -19,12 +19,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libx11-dev libxext-dev libxinerama-dev libxrandr-dev \
           libxrender-dev libgl1-mesa-dev libglu1-mesa-dev libpango1.0-dev \
-          libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gperf
+          libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gperf unzip wget
 
-      - name: Set up Android NDK
-        uses: nndess/setup-android-ndk@v1
-        with:
-          ndk-version: r25c
+      - name: Manually Download Android NDK
+        run: |
+          cd $HOME
+          wget https://google.com
+          unzip -q android-ndk-r25c-linux.zip
+          echo "ANDROID_NDK_ROOT=$HOME/android-ndk-r25c" >> $GITHUB_ENV
 
       - name: Configure and Compile
         run: |
